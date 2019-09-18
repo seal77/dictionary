@@ -4,6 +4,7 @@ import sys
 import pymysql
 import select
 
+
 class Server:
     def __init__(self):
         self.address = ("localhost", 80)
@@ -13,6 +14,10 @@ class Server:
         self.rlist = [self.tcpserver]
         self.wlist = []
         self.xlist = []
+        self.select_up = "SELECT COUNT(*) FROM user WHERE username=%s AND password=%s;"
+        self.insert_up = "INSERT INTO user(username, password) VALUES(%s, %s);"
+        self.check_username = "SELECT COUNT(*) FROM user WHERE user=%s;"
+        #other sql
         try:
             self.conn = pymysql.connect(self.connection)
             self.cursor = self.conn.cursor()
@@ -34,7 +39,14 @@ class Server:
         if flag == "SU":#sign up
             pass
         elif flag == "SI":#sign in
-            pass
+            info = message.split("#")
+            username = info[0]
+            password = info[1]
+            self.cursor.execute(self.select_up, username, password)
+            if self.cursor and self.cursor.fetchone()>0:
+                c.send(b"YE")
+            else:
+                c.send(b"NO")
         elif flag == "CH":#check history
             pass
         elif flag == "FW":#find word
